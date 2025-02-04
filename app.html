@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Classy To-Do List</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* Custom Aesthetic: Creamy background, Royal Blue accents, and Classy neutrals */
+    :root {
+      --cream-bg: #FFF8E1;
+      --royal-blue: #4169E1;
+      --subtle-shadow: rgba(65, 105, 225, 0.15);
+      --soft-border: #E0CDA9;
+    }
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+    }
+    body {
+      background-color: var(--cream-bg);
+      font-family: 'IBM Plex Mono', monospace;
+    }
+    .baggy-container {
+      width: 100vw;
+      height: 100vh;
+      padding: 3rem;
+      background: linear-gradient(145deg, #fffdf5, #f8f4e8);
+      box-shadow: inset 15px 15px 30px rgba(0, 0, 0, 0.1), inset -15px -15px 30px rgba(255, 255, 255, 0.6);
+      overflow-y: auto;
+    }
+    .task-item {
+      padding: 1.5rem;
+      margin: 1rem 0;
+      border-radius: 15px;
+      background: #ffffff;
+      box-shadow: 5px 5px 15px var(--subtle-shadow), -5px -5px 15px #ffffff;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      position: relative;
+    }
+    .task-item:hover {
+      transform: translateY(-3px);
+      box-shadow: 10px 10px 25px var(--subtle-shadow), -10px -10px 25px #ffffff;
+    }
+    .thread-line {
+      position: absolute;
+      left: -1.25rem;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: var(--royal-blue);
+    }
+    /* Subtask styling */
+    .subtask-container {
+      margin-top: 0.75rem;
+      margin-left: 1.5rem;
+      border-left: 2px dashed var(--royal-blue);
+      padding-left: 1rem;
+    }
+    .subtask-item {
+      padding: 0.5rem 0.75rem;
+      border-radius: 10px;
+      background: #fefefe;
+      box-shadow: 2px 2px 8px var(--subtle-shadow), -2px -2px 8px #ffffff;
+      transition: background 0.2s ease;
+      margin-top: 0.5rem;
+    }
+    .subtask-item:hover {
+      background: #f0f8ff;
+    }
+    /* Folder section refinements */
+    .folder-container {
+      max-width: 600px;
+      margin: 0 auto 2rem auto;
+      text-align: center;
+    }
+    .folder-container h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #333;
+      margin-bottom: 1rem;
+    }
+    .folder-controls {
+      display: inline-flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.75rem;
+      justify-content: center;
+    }
+    .folder-controls select {
+      padding: 0.5rem 0.75rem;
+      font-size: 1.125rem;
+      font-weight: 600;
+      background: #fff;
+      border: 2px solid var(--soft-border);
+      border-radius: 8px;
+      box-shadow: 2px 2px 8px var(--subtle-shadow);
+    }
+    /* Button styles */
+    .btn {
+      padding: 0.6rem 1rem;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 14px;
+      transition: background-color 0.2s ease, transform 0.1s ease;
+    }
+    .btn:hover {
+      transform: translateY(-2px);
+    }
+    .btn-royal {
+      background-color: var(--royal-blue);
+      color: #fff;
+    }
+    .btn-royal:hover {
+      background-color: #365bb5;
+    }
+    .btn-danger {
+      background-color: #e3342f;
+      color: #fff;
+    }
+    .btn-danger:hover {
+      background-color: #cc1f1a;
+    }
+
+  .task-item {
+    padding: 1.25rem 1.75rem;
+    margin: 1rem 0;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.95);
+    box-shadow: 0 4px 20px rgba(65, 105, 225, 0.08);
+    transition: all 0.2s ease;
+    position: relative;
+    border: 1px solid rgba(224, 205, 169, 0.3);
+  }
+
+  .task-text {
+    font-size: 1.1rem;
+    line-height: 1.7;
+    color: #2d3748;
+    word-break: break-word;
+    hyphens: auto;
+    max-width: 85%;
+    padding-right: 1.5rem;
+    font-weight: 500;
+  }
+
+  .subtask-item span {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: #4a5568;
+    max-width: 80%;
+    font-weight: 400;
+  }
+
+  .task-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 24px rgba(65, 105, 225, 0.12);
+  }
+
+  .subtask-container {
+    margin-top: 1rem;
+    margin-left: 3rem;
+    border-left: 2px solid rgba(65, 105, 225, 0.15);
+    padding-left: 1.5rem;
+  }
+
+  .subtask-item {
+    padding: 0.75rem 1.25rem;
+    background: rgba(249, 250, 251, 0.8);
+    border: 1px solid rgba(224, 205, 169, 0.2);
+    margin: 0.5rem 0;
+  }
+
+  input[type="checkbox"] {
+    width: 1.4em;
+    height: 1.4em;
+    border: 2px solid var(--royal-blue);
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    cursor: pointer;
+  }
+
+  input[type="checkbox"]:checked {
+    background-color: var(--royal-blue);
+    border-color: var(--royal-blue);
+  }
+
+  .max-w-3xl {
+    max-height: 65vh;
+    padding-right: 0.5rem;
+  }
+
+  .task-item:nth-child(even) {
+    background: rgba(255, 255, 255, 0.98);
+  }
+
+  .btn {
+    letter-spacing: 0.02em;
+    padding: 0.7rem 1.2rem;
+    font-size: 0.9rem;
+  }
+
+  /* Mobile optimization */
+  @media (max-width: 640px) {
+    .task-text {
+      font-size: 1rem;
+      max-width: 75%;
+    }
+
+    .subtask-container {
+      margin-left: 1.5rem;
+    }
+
+    .baggy-container {
+      padding: 1.5rem;
+    }
+
+    .task-item {
+      padding: 1rem;
+    }
+
+    .btn {
+      padding: 0.6rem 1rem;
+    }
+  }
+
+  input:focus, button:focus {
+    outline: 2px solid var(--royal-blue);
+    outline-offset: 2px;
+  }
+
+  .line-through {
+    color: #718096;
+    opacity: 0.85;
+    text-decoration-thickness: 2px;
+  }
+</style>
+</head>
+<body>
+  <div x-data="todoApp()" class="baggy-container">
+    <h1 class="text-4xl font-bold text-center text-gray-800">To-Do List App</h1>
+    
+    <!-- Folder Management -->
+    <div class="folder-container">
+      <h2>Folders</h2>
+      <div class="folder-controls">
+        <select x-model="currentFolder">
+          <template x-for="folder in folders" :key="folder">
+            <option x-text="folder"></option>
+          </template>
+        </select>
+        <button @click="renameFolder" class="btn btn-royal">Rename</button>
+        <button @click="deleteFolder" class="btn btn-danger">Delete</button>
+        <button @click="addFolder" class="btn btn-royal">+ Add Folder</button>
+      </div>
+    </div>
+
+    <!-- Task Input -->
+    <form @submit.prevent="addTask" class="mb-8 flex gap-2 max-w-3xl mx-auto">
+      <input x-model="newTask" type="text" placeholder="Add a new task..."
+             class="flex-1 p-3 text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300" required>
+      <button type="submit" class="btn btn-royal">Add Task</button>
+    </form>
+
+    <!-- Task List -->
+    <div class="max-w-3xl mx-auto">
+      <template x-for="(task, tIndex) in filteredTasks" :key="task.id">
+        <div class="task-item">
+          <!-- Thread visual on the left -->
+          <div class="thread-line"></div>
+          <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+              <input type="checkbox" x-model="task.completed" @change="saveTasks" class="h-5 w-5">
+              <span x-text="task.text" :class="{ 'line-through text-gray-500': task.completed }" class="text-lg"></span>
+            </div>
+            <div class="flex items-center gap-2">
+              <!-- Toggle subtask input -->
+              <button @click="toggleSubtaskInput(tIndex)" type="button" class="btn btn-royal text-xs">+ Subtask</button>
+              <button @click="removeTask(task.id)" type="button" class="btn btn-danger text-sm">&times;</button>
+            </div>
+          </div>
+          <!-- Subtask Input Area -->
+          <div x-show="task.showSubtaskInput" class="mt-2 flex gap-2">
+            <input x-model="task.newSubtask" type="text" placeholder="Enter subtask..."
+                   class="flex-1 p-2 text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300">
+            <button @click="addSubtask(task)" type="button" class="btn btn-royal text-sm">Add</button>
+          </div>
+          <!-- Subtasks List -->
+          <div class="subtask-container" x-show="task.subtasks.length">
+            <template x-for="(sub, sIndex) in task.subtasks" :key="sub.id">
+              <div class="subtask-item flex items-center justify-between">
+                <div class="flex items-center space-x-2">
+                  <input type="checkbox" x-model="sub.completed" @change="saveTasks" class="h-4 w-4">
+                  <span x-text="sub.text" :class="{ 'line-through text-gray-500': sub.completed }"></span>
+                </div>
+                <button @click="removeSubtask(task, sub.id)" type="button" class="text-red-500 text-lg">&times;</button>
+              </div>
+            </template>
+          </div>
+        </div>
+      </template>
+    </div>
+
+    <p x-show="filteredTasks.length === 0" class="text-center text-gray-500 mt-8">No tasks available. Add one above!</p>
+  </div>
+
+  <script>
+    function todoApp() {
+      return {
+        newTask: '',
+        currentFolder: 'Default',
+        folders: JSON.parse(localStorage.getItem('folders')) || ['Default'],
+        tasks: JSON.parse(localStorage.getItem('tasks')) || [],
+        
+        get filteredTasks() {
+          return this.tasks.filter(task => task.folder === this.currentFolder);
+        },
+        
+        addTask() {
+          if (!this.newTask.trim()) return;
+          this.tasks.push({
+            id: Date.now(),
+            text: this.newTask.trim(),
+            completed: false,
+            folder: this.currentFolder,
+            subtasks: [],
+            showSubtaskInput: false,
+            newSubtask: ''
+          });
+          this.newTask = '';
+          this.saveTasks();
+        },
+        
+        removeTask(taskId) {
+          this.tasks = this.tasks.filter(task => task.id !== taskId);
+          this.saveTasks();
+        },
+        
+        toggleSubtaskInput(taskIndex) {
+          // Find the task in the main tasks array (not filteredTasks) to update properly.
+          const taskId = this.filteredTasks[taskIndex].id;
+          const index = this.tasks.findIndex(task => task.id === taskId);
+          if(index !== -1) {
+            this.tasks[index].showSubtaskInput = !this.tasks[index].showSubtaskInput;
+          }
+        },
+        
+        addSubtask(task) {
+          if (!task.newSubtask.trim()) return;
+          task.subtasks.push({
+            id: Date.now(),
+            text: task.newSubtask.trim(),
+            completed: false
+          });
+          task.newSubtask = '';
+          task.showSubtaskInput = false;
+          this.saveTasks();
+        },
+        
+        removeSubtask(task, subtaskId) {
+          task.subtasks = task.subtasks.filter(sub => sub.id !== subtaskId);
+          this.saveTasks();
+        },
+        
+        addFolder() {
+          const folderName = prompt("Enter folder name:");
+          if (folderName && !this.folders.includes(folderName)) {
+            this.folders.push(folderName);
+            this.saveFolders();
+          }
+        },
+        
+        renameFolder() {
+          const newName = prompt('Enter new folder name:', this.currentFolder);
+          if (newName && newName.trim() && !this.folders.includes(newName)) {
+            const index = this.folders.indexOf(this.currentFolder);
+            if (index !== -1) {
+              this.folders[index] = newName;
+              this.tasks.forEach(task => {
+                if (task.folder === this.currentFolder) {
+                  task.folder = newName;
+                }
+              });
+              this.currentFolder = newName;
+              this.saveFolders();
+              this.saveTasks();
+            }
+          }
+        },
+        
+        deleteFolder() {
+          if (this.folders.length === 1) return alert("At least one folder must exist.");
+          if (confirm('Delete this folder and all its tasks?')) {
+            this.folders = this.folders.filter(folder => folder !== this.currentFolder);
+            this.tasks = this.tasks.filter(task => task.folder !== this.currentFolder);
+            this.currentFolder = this.folders[0];
+            this.saveFolders();
+            this.saveTasks();
+          }
+        },
+        
+        saveTasks() {
+          localStorage.setItem('tasks', JSON.stringify(this.tasks));
+        },
+        
+        saveFolders() {
+          localStorage.setItem('folders', JSON.stringify(this.folders));
+        }
+      };
+    }
+  </script>
+</body>
+</html>
